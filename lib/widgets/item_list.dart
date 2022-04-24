@@ -1,26 +1,35 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_samples/res/custom_colors.dart';
 import 'package:flutterfire_samples/screens/edit_screen.dart';
-import 'package:flutterfire_samples/utils/database.dart';
+import 'package:flutterfire_samples/utils/firestore_database.dart';
+import 'package:flutterfire_samples/utils/realtime_database.dart';
 
 class ItemList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: Database.readItems(),
+    return StreamBuilder<DatabaseEvent>(
+      stream: RealtimeDatabase.readItems(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text('Something went wrong');
         } else if (snapshot.hasData || snapshot.data != null) {
           return ListView.separated(
             separatorBuilder: (context, index) => SizedBox(height: 16.0),
-            itemCount: snapshot.data!.docs.length,
+            
+            itemCount: snapshot.data!.snapshot.children.length,//snapshot.data!.docs.length,
             itemBuilder: (context, index) {
-              var noteInfo = snapshot.data!.docs[index].data()!;
-              String docID = snapshot.data!.docs[index].id;
-              String title = noteInfo['title'];
-              String description = noteInfo['description'];
+              var noteInfo = "";//snapshot.data!.value!;
+              RealtimeDatabase.updateData(snapshot.data!.snapshot.children);
+  
+              String docID = snapshot.data!.snapshot.key.toString();//snapshot.data!.;
+              String title = RealtimeDatabase.data2[index]!["title"];//noteInfo['title'];
+              String description = "There";//noteInfo['description'];
+
+              
 
               return Ink(
                 decoration: BoxDecoration(

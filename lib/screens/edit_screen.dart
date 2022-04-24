@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutterfire_samples/res/custom_colors.dart';
-import 'package:flutterfire_samples/utils/database.dart';
+import 'package:flutterfire_samples/utils/firestore_database.dart';
 import 'package:flutterfire_samples/widgets/app_bar_title.dart';
 import 'package:flutterfire_samples/widgets/edit_item_form.dart';
 
@@ -65,7 +65,7 @@ class _EditScreenState extends State<EditScreen> {
                         _isDeleting = true;
                       });
 
-                      await Database.deleteItem(
+                      await FirestoreDatabase.deleteItem(
                         docId: widget.documentId,
                       );
 

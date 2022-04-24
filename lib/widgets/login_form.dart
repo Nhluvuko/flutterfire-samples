@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutterfire_samples/res/custom_colors.dart';
 import 'package:flutterfire_samples/screens/dashboard_screen.dart';
-import 'package:flutterfire_samples/utils/database.dart';
+import 'package:flutterfire_samples/utils/firestore_database.dart';
+import 'package:flutterfire_samples/utils/realtime_database.dart';
 import 'package:flutterfire_samples/utils/validator.dart';
 
 import 'custom_form_field.dart';
@@ -69,8 +70,8 @@ class _LoginFormState extends State<LoginForm> {
                   widget.focusNode.unfocus();
 
                   if (_loginInFormKey.currentState!.validate()) {
-                    Database.userUid = _uidController.text;
-
+                    FirestoreDatabase.userUid = _uidController.text;
+                    RealtimeDatabase.userUid = _uidController.text;
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
                         builder: (context) => DashboardScreen(),
