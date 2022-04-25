@@ -8,12 +8,28 @@ import 'package:flutterfire_samples/screens/edit_screen.dart';
 import 'package:flutterfire_samples/utils/firestore_database.dart';
 import 'package:flutterfire_samples/utils/realtime_database.dart';
 
-class ItemList extends StatelessWidget {
+class ItemList extends StatefulWidget {
+
+  
+
+  @override
+  State<StatefulWidget> createState() {
+    return _ItemList();
+  }
+}
+
+class _ItemList extends State<ItemList> {
+
+  List<dynamic> items = [];
+
+  final database = RealtimeDatabase();
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DatabaseEvent>(
-      stream: RealtimeDatabase.readItems(),
-      builder: (context, snapshot) {
+      stream: database.readItems(),
+      builder: (context, snapshot,) {
+        database.readItems();
         if (snapshot.hasError) {
           return Text('Something went wrong');
         } else if (snapshot.hasData || snapshot.data != null) {
@@ -23,11 +39,13 @@ class ItemList extends StatelessWidget {
             itemCount: snapshot.data!.snapshot.children.length,//snapshot.data!.docs.length,
             itemBuilder: (context, index) {
               var noteInfo = "";//snapshot.data!.value!;
-              RealtimeDatabase.updateData(snapshot.data!.snapshot.children);
-  
-              String docID = snapshot.data!.snapshot.key.toString();//snapshot.data!.;
-              String title = RealtimeDatabase.data2[index]!["title"];//noteInfo['title'];
-              String description = "There";//noteInfo['description'];
+            
+
+
+              database.updateData(snapshot.data!.snapshot.children);
+              String docID = database.data2[index]["id"];
+              String title = database.data2[index]["data"]["title"];
+              String description = database.data2[index]["data"]["description"];
 
               
 
@@ -74,5 +92,17 @@ class ItemList extends StatelessWidget {
         );
       },
     );
+  }
+
+  transfromData(items) {
+
+    var transformed = [];
+    transformed.forEach((element) {
+          transformed.add(<String, dynamic>{
+            "id": element.key,
+            "data": element.value,
+          });
+      });
+    return transformed;
   }
 }

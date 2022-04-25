@@ -1,22 +1,25 @@
 import 'dart:developer';
 
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:uuid/uuid.dart';
 
 final FirebaseDatabase _database = FirebaseDatabase.instance;
-final DatabaseReference _databaseReference = _database.ref();
+var persist  = _database.setPersistenceEnabled(true);
 
-class RealtimeDatabase {
+class RealtimeDatabase with ChangeNotifier{
   static String? userUid;
   static Map<String, dynamic>? data = new Map();
-  static List data2 = [];
   
+  List data2 = [];
+  static var uuid = Uuid();
   
 
   static Future<void> addItem({
     required String title,
     required String description,
   }) async {
-    DatabaseReference itemRef = FirebaseDatabase.instance.ref("users/$userUid");
+    DatabaseReference itemRef = FirebaseDatabase.instance.ref("$userUid/${uuid.v4()};");
 
     Map<String, dynamic> data = <String, dynamic>{
       "title": title,
@@ -32,9 +35,9 @@ class RealtimeDatabase {
   static Future<void> updateItem({
     required String title,
     required String description,
-    required String docId,
+    required String refId,
   }) async {
-    DatabaseReference itemRef = FirebaseDatabase.instance.ref("users/$userUid");
+    DatabaseReference itemRef = FirebaseDatabase.instance.ref("$userUid/$refId");
 
     Map<String, dynamic> data = <String, dynamic>{
       "title": title,
@@ -49,33 +52,21 @@ class RealtimeDatabase {
         .catchError((e) => print(e));
   }
 
-  static readItems() {
-
-    return FirebaseDatabase.instance.ref("notes/$userUid").onValue;
-    
-    FirebaseDatabase.instance.ref("notes/$userUid").onValue.listen((DatabaseEvent event) {
-      event.snapshot.children.length;
-      event.snapshot.children.forEach((element) {
-          log(element.key.toString());
-          data2.add(<String, dynamic>{
-            "title": element.key,
-            "description": element.value,
-          });
-      });
-    });
+  readItems() {
+    var ref = FirebaseDatabase.instance.ref("$userUid");
+    ref.keepSynced(true);
+    return ref.onValue;
   }
 
-  static updateData(items) {
-
+  updateData(items) {
+    data2 = [];
     items.forEach((element) {
-          log(element.key.toString());
-          log(element.value.toString());
-          log("------------------");
           data2.add(<String, dynamic>{
-            "title": element.key,
-            "description": element.value,
+            "id": element.key,
+            "data": element.value,
           });
       });
+      notifyListeners();
   }
 
   /*

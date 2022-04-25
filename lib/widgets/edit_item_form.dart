@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutterfire_samples/res/custom_colors.dart';
 import 'package:flutterfire_samples/utils/firestore_database.dart';
+import 'package:flutterfire_samples/utils/realtime_database.dart';
 import 'package:flutterfire_samples/utils/validator.dart';
 
 import 'custom_form_field.dart';
@@ -141,8 +142,8 @@ class _EditItemFormState extends State<EditItemForm> {
                           _isProcessing = true;
                         });
 
-                        await FirestoreDatabase.updateItem(
-                          docId: widget.documentId,
+                        RealtimeDatabase.updateItem(
+                          refId: widget.documentId,
                           title: _titleController.text,
                           description: _descriptionController.text,
                         );
