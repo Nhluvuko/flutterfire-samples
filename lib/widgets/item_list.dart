@@ -29,7 +29,6 @@ class _ItemList extends State<ItemList> {
     return StreamBuilder<DatabaseEvent>(
       stream: database.readItems(),
       builder: (context, snapshot,) {
-        database.readItems();
         if (snapshot.hasError) {
           return Text('Something went wrong');
         } else if (snapshot.hasData || snapshot.data != null) {
@@ -92,17 +91,5 @@ class _ItemList extends State<ItemList> {
         );
       },
     );
-  }
-
-  transfromData(items) {
-
-    var transformed = [];
-    transformed.forEach((element) {
-          transformed.add(<String, dynamic>{
-            "id": element.key,
-            "data": element.value,
-          });
-      });
-    return transformed;
   }
 }

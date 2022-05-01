@@ -4,29 +4,35 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:uuid/uuid.dart';
 
-final FirebaseDatabase _database = FirebaseDatabase.instance;
-var persist  = _database.setPersistenceEnabled(true);
+
 
 class RealtimeDatabase with ChangeNotifier{
+  
   static String? userUid;
   static Map<String, dynamic>? data = new Map();
   
   List data2 = [];
   static var uuid = Uuid();
+
+  static var database = FirebaseDatabase.instance;
+
+  RealtimeDatabase(){
+    database.setPersistenceEnabled(true);
+  }
   
 
   static Future<void> addItem({
     required String title,
     required String description,
   }) async {
-    DatabaseReference itemRef = FirebaseDatabase.instance.ref("$userUid/${uuid.v4()};");
+    DatabaseReference itemRef = database.ref("$userUid/${uuid.v4()};");
 
     Map<String, dynamic> data = <String, dynamic>{
       "title": title,
       "description": description,
     };
 
-    await itemRef
+    itemRef
         .set(data)
         .whenComplete(() => print("Note item added to the database"))
         .catchError((e) => print(e));
@@ -37,7 +43,7 @@ class RealtimeDatabase with ChangeNotifier{
     required String description,
     required String refId,
   }) async {
-    DatabaseReference itemRef = FirebaseDatabase.instance.ref("$userUid/$refId");
+    DatabaseReference itemRef = database.ref("$userUid/$refId");
 
     Map<String, dynamic> data = <String, dynamic>{
       "title": title,
@@ -46,15 +52,21 @@ class RealtimeDatabase with ChangeNotifier{
 
    
 
-    await itemRef
+    itemRef
         .update(data)
         .whenComplete(() => print("Note item updated in the database"))
         .catchError((e) => print(e));
   }
 
   readItems() {
-    var ref = FirebaseDatabase.instance.ref("$userUid");
+    var ref = database.ref("$userUid");
     ref.keepSynced(true);
+    
+    ref.get().then((value) => {
+      value.children.forEach((element) {
+        log(element.value.toString());
+      })
+    });
     return ref.onValue;
   }
 
@@ -69,17 +81,16 @@ class RealtimeDatabase with ChangeNotifier{
       notifyListeners();
   }
 
-  /*
+  
   static Future<void> deleteItem({
     required String docId,
   }) async {
-    DocumentReference documentReferencer =
-        _mainCollection.doc(userUid).collection('items').doc(docId);
+    
+    DatabaseReference itemRef = database.ref("$userUid/$docId");
 
-    await documentReferencer
-        .delete()
+    itemRef
+        .remove()
         .whenComplete(() => print('Note item deleted from the database'))
         .catchError((e) => print(e));
   }
-  */
 }
